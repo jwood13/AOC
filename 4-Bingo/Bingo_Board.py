@@ -23,15 +23,7 @@ class Board():
     def check_win(self,i,j):
         row_sum = np.sum(self.marks[i,:])
         col_sum = np.sum(self.marks[:,j])
-        diag_sum = 0
-        if i == j:
-            for k in range(5):
-                diag_sum += self.marks[k,k]
-        if i + j == 4 and diag_sum < 5:
-            diag_sum = 0
-            for k in range(5):
-                diag_sum += self.marks[k,4-k]
-        if row_sum == 5 or col_sum == 5 or diag_sum == 5:
+        if row_sum == 5 or col_sum == 5:
             return True
         else:
             return False
