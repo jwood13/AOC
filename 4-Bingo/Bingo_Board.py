@@ -3,7 +3,8 @@ class Board():
     def __init__(self, board):
         self.board = board
         self.marks = np.zeros_like(board,dtype=int)
-    
+        self.won = False
+
     def __repr__(self):
         return self.board.__repr__()+'\n' + self.marks.__repr__()
 
@@ -24,6 +25,7 @@ class Board():
         row_sum = np.sum(self.marks[i,:])
         col_sum = np.sum(self.marks[:,j])
         if row_sum == 5 or col_sum == 5:
+            self.won = True
             return True
         else:
             return False
