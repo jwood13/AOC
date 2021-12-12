@@ -5,7 +5,7 @@ with open("input.txt") as file:
     for age in line.strip().split(','):
         age_list[int(age)] +=1
 
-for day in range(80):
+for day in range(256):
     births = age_list[0]
     for i in range(8):
         age_list[i] = age_list[i+1]
