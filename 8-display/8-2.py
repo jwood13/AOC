@@ -23,6 +23,8 @@ def in_a_not_in_b(a,b):
     return output
 
 def make_key(all_strings):
+    ''' Take the list of 10 unique display outputs and return a dictionary map to identify the character
+    '''
     number_translation = {}
     length_5 = []
     length_6 = []
