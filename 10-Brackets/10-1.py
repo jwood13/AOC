@@ -6,8 +6,8 @@ close_map = {')': '(',
              ']': '[',
              '>': '<'}
 penalty = {')': 3,
-           '}': 57,
-           ']': 1197,
+           ']': 57,
+           '}': 1197,
            '>': 25137}
 total_penalty = 0
 for line in open('input.txt').readlines():
