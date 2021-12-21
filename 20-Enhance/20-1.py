@@ -36,7 +36,7 @@ def next_pixel(frame, i, j, key):
     return key[key_number]
 
 
-iterations = 2
+iterations = 50
 border_width = iterations + 1
 with open('input.txt') as file:
     key = file.readline().strip()
@@ -64,8 +64,9 @@ for loop_count in range(iterations):
     for i in range(0, full_height):
         for j in range(0, full_width):
             new_frame[i, j] = next_pixel(frame, i, j, binary_key)
-    print_frame(new_frame)
     frame = new_frame
+    print(loop_count)
+print_frame(new_frame)
 print(np.sum(frame))
 
 # < 5613
