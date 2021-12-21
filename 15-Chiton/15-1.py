@@ -1,46 +1,46 @@
 import numpy as np
 
 
-class walker():
-    history = 's'
-    coordinate = [0, 0]
+class point():
+    coord = [0, 0]
     risk = 0
 
-    def __init__(self, cave, coordinate=[0, 0], history=[], risk=0):
-        self.history = history
-        self.history.append(coordinate)
-        self.coordinate = coordinate
+    def __init__(self, cave, coord=[0, 0], parent='', risk=0):
+        self.parent = parent
+        self.coord = coord
         self.risk = risk
         self.cave = cave
         self.bounds = cave.shape
-        self.fitness = (self.bounds[0]-coordinate[0]) + \
-            (self.bounds[1]-coordinate[1])
+        self.fitness = (self.bounds[0]-coord[0]) + \
+            (self.bounds[1]-coord[1])
 
     def __repr__(self):
-        return str(self.history)+str(self.risk)
+        return str(self.coord) + str(self.risk)
+
+    def str(self):
+        return str(self.coord)
 
     def generate_new_walkers(self):
         '''Generate new walkers in all 4 directions, covering for duplication, and revisitation'''
-        directions = {'u': [self.coordinate[0], self.coordinate[1]-1], 'd': [self.coordinate[0], self.coordinate[1]+1],
-                      'l': [self.coordinate[0]-1, self.coordinate[1]], 'r': [self.coordinate[0]+1, self.coordinate[1]]}
-        opposites = {'u': 'd', 'd': 'u', 'l': 'r', 'r': 'l'}
+        directions = {'u': [self.coord[0], self.coord[1]-1], 'd': [self.coord[0], self.coord[1]+1],
+                      'l': [self.coord[0]-1, self.coord[1]], 'r': [self.coord[0]+1, self.coord[1]]}
         new_walkers = []
-        for dir, coordinate in directions.items():
-            if coordinate not in self.history:
-                if self.in_bounds(coordinate):
-                    new_walkers.append(
-                        walker(self.cave, coordinate, self.history.copy(), self.risk+cave[coordinate[0], coordinate[1]]))
+        for coord in directions.values():
+            if self.in_bounds(coord):
+                # print('risk:', self.risk+self.cave[coord[0], coord[1]])
+                new_walkers.append(
+                    point(self.cave, coord, self.str(), self.risk+cave[coord[0], coord[1]]))
         return new_walkers
 
     def in_bounds(self, coord):
-        '''Check if the coordinate would go out of bounds'''
+        '''Check if the coord would go out of bounds'''
         if coord[0] < 0 or coord[0] >= self.bounds[0] or coord[1] < 0 or coord[1] >= self.bounds[1]:
             return False
         else:
             return True
 
     def finished(self):
-        coord = self.coordinate
+        coord = self.coord
         '''check to see if you've reached the end'''
         if coord == [self.cave.shape[0]-1, self.cave.shape[1]-1]:
             return True
@@ -53,30 +53,50 @@ def sort_key(x):
     return x.risk+x.fitness
 
 
-filename = 'sinput.txt'
+def traceback(coordinate, closed):
+    string = coordinate.str()
+    while coordinate.str() != '[0, 0]':
+        coordinate = closed[coordinate.parent]
+        string = coordinate.str() + ", " + string
+    return string
+
+
+filename = 'input.txt'
 with open(filename) as file:
     file_contents = file.readlines()
     height = len(file_contents)
     width = len(file_contents[0].strip())
     cave = np.ones((height, width), dtype=int)*10
+    counter = 0
     for line in file_contents:
-        counter = 0
         cave[counter, :] = [int(x) for x in line.strip()]
         counter += 1
     goal = [width, height]
 
-walkers = [walker(cave)]
+reached = {}
+start = point(cave)
+to_check = {start.str(): start}
 count = 0
-while not walkers[0].finished():
-    expanding = walkers.pop(0)
-    new_walkers = expanding.generate_new_walkers()
-    for new in new_walkers:
-        walkers.append(new)
-    # print(walkers)
-    walkers.sort(key=sort_key)
-    # for w in walkers:
-    #     (print(sort_key(w)))
-    count += 1
-    print(count)
-
-print(walkers[0], walkers[0].risk)
+finished = False
+while not finished:
+    # print(to_check.values())
+    find_next = sorted(to_check.values(), key=sort_key)
+    # print(find_next)
+    next = find_next[0]
+    if next.finished():
+        finished = True
+    to_check.pop(next.str())
+    new_points = next.generate_new_walkers()
+    reached[next.str()] = next
+    for new in new_points:
+        string_coord = new.str()
+        if string_coord in reached.keys():
+            if reached[string_coord].risk > new.risk:
+                reached[string_coord] = new
+        elif string_coord in to_check:
+            if to_check[string_coord].risk > new.risk:
+                to_check[string_coord] = new
+        else:
+            to_check[string_coord] = new
+print(next, next.risk)
+print(traceback(next, reached))
