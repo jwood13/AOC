@@ -29,14 +29,6 @@ ROTATIONS = [np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]]),
              ]
 
 
-def rotation():
-    def __init__(self):
-        pass
-
-    def apply(self, coord):
-        return [x, y, z]
-
-
 class Beacon():
     coords = [0, 0, 0]
 
@@ -107,18 +99,6 @@ class Scanner():
         return [str(self.coords + np.matmul(self.orientation, b.coords)) for b in self.beacons]
 
 
-def rotations(x, y, z):
-    '''to retain chirality of the reference frame, any transformation needs to be 2 partial transformations i.e. 2 negations, or 1 rotation and 1 rotation'''
-    negations = [
-        [-x, y, z],
-        [x, -y, z],
-        [x, y, -z]]
-    rotations = [
-        [x, z, y],
-        [y, x, z],
-        [z, y, x]]
-
-
 scanners = []
 with open('input.txt') as file:
     beacons = []
@@ -167,4 +147,12 @@ beacon_list = defaultdict(int)
 for s in scanners:
     for b in s.dump_beacon_locations():
         beacon_list[b] += 1
-print(len(beacon_list))
+print('Number of Beacons:', len(beacon_list))
+# manhattan distances
+largest_manhattan_distance = 0
+for scanner_a in scanners:
+    for scanner_b in scanners:
+        distance = np.sum(np.abs(scanner_a.coords - scanner_b.coords))
+        if distance > largest_manhattan_distance:
+            print(distance, scanner_a.scanner_id, scanner_b.scanner_id)
+            largest_manhattan_distance = distance
