@@ -91,8 +91,9 @@ class Scanner():
     orientation = ROTATIONS[0]
     beacons = []
 
-    def __init__(self, beacon_list):
+    def __init__(self, beacon_list, scanner_id):
         self.beacons = []
+        self.scanner_id = scanner_id
         for item in beacon_list:
             coords = item.strip().split(',')
             self.beacons.append(Beacon(coords))
@@ -100,7 +101,10 @@ class Scanner():
             beacon.add_neighbours(self.beacons)
 
     def __repr__(self):
-        return str(self.beacons[0]) +" "+str(self.coords)+' '+str(len(self.beacons))
+        return 'Scanner ' + str(self.scanner_id) + ": "+str(self.coords)+' '+str(np.matmul(self.orientation, np.array([1, 2, 3])))+' '+str(len(self.beacons))
+
+    def dump_beacon_locations(self):
+        return [str(self.coords + np.matmul(self.orientation, b.coords)) for b in self.beacons]
 
 
 def rotations(x, y, z):
@@ -116,28 +120,29 @@ def rotations(x, y, z):
 
 
 scanners = []
-with open('sinput.txt') as file:
+with open('input.txt') as file:
     beacons = []
     for line in file.readlines():
         if line.strip() == '':
             if len(beacons) > 0:
-                new_scanner = Scanner(beacons)
+                new_scanner = Scanner(beacons, len(scanners))
                 scanners.append(new_scanner)
             beacons = []
         elif line[: 3] == '---':
             pass
         else:
             beacons.append(line.strip())
-    scanners.append(Scanner(beacons))
+    scanners.append(Scanner(beacons, len(scanners)))
 unlinked_scanners = scanners.copy()
+linked_scanners = [unlinked_scanners.pop(0)]
 scanners_to_remove = []
-for scanner_a in scanners:
+for scanner_a in linked_scanners:
     for scanner in scanners_to_remove:
         unlinked_scanners.remove(scanner)
     scanners_to_remove = []
-    if scanner_a in unlinked_scanners:
-        unlinked_scanners.remove(scanner_a)
-    
+    # if scanner_a in unlinked_scanners:
+    # unlinked_scanners.remove(scanner_a)
+
     for scanner_b in unlinked_scanners:
         result = False
         for beacon_a in scanner_a.beacons:
@@ -149,9 +154,17 @@ for scanner_a in scanners:
                 break
         if result:
             scanners_to_remove.append(scanner_b)
-            scanner_b.orientation = result[0]
-            scanner_b.coords = np.matmul(scanner_a.orientation, result[1]) + scanner_a.coords
-            print('link',scanner_a,scanner_b)
+            linked_scanners.append(scanner_b)
+            scanner_b.orientation = np.matmul(scanner_a.orientation, result[0])
+            scanner_b.coords = np.matmul(
+                scanner_a.orientation, result[1]) + scanner_a.coords
+            print('link', scanner_a, scanner_b)
             # print('flag',scanner_b,scanner_a.coords)
             # print('scanner1 orientation', result[0], '\ndisplacement', result[1])
 print(scanners)
+
+beacon_list = defaultdict(int)
+for s in scanners:
+    for b in s.dump_beacon_locations():
+        beacon_list[b] += 1
+print(len(beacon_list))
