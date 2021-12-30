@@ -1,0 +1,16 @@
+# do it manual!
+D out 2000
+a out 6
+a out 3
+d in 3000
+d in 5000
+c in 700
+b out 20
+c in 500
+b in 30
+b in 50
+a in 3
+a in 8
+
+= 11320
+# < 11322
