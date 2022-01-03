@@ -11,7 +11,7 @@ for line in open('input.txt').readlines():
 input_number = [9]*14
 
 
-def operate(command, input_digit):
+def operate(command, input):
     alphabet = 'abcdefghijklmnopqrstuvwxyz'
     op = com[0]
     a = registers[com[1]]
@@ -24,7 +24,7 @@ def operate(command, input_digit):
     if op == 'inp':
         variables[input_register] = alphabet[0]
         alphabet = alphabet[1:]
-        variables[input_register] = input_digit
+        variables[input_register] = int(input.pop(0))
 
     elif op == 'add':
         if type(variables[a]) == int and type(b) == int:
@@ -74,11 +74,20 @@ def operate(command, input_digit):
                 str(variables[a]) + '=' + str(b)+')'
 
     # print(linecount, variables)
-for digit in range(10):
-    for z in range(26):
-        variables = [0, 0, 0, z]
-        for com in commands[252-18:252]:
-            operate(com, digit)
-        if variables[3] == 0:
-            print(digit, z, variables)
+# for digit in range(10):
+#     for z in range(26):
+#         variables = [0, 0, 0, z]
+#         for com in commands[252-18:252]:
+#             operate(com, digit)
+#         if variables[3] == 0:
+#             print(digit, z, variables)
+# print(variables)
+
+
+# validate number
+variables = [0, 0, 0, 0]
+number = '34171911181211'
+input_list = [x for x in number]
+for com in commands:
+    operate(com, input_list)
 print(variables)
